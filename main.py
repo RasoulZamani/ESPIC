@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from parameters import *
+from constants import *
 import matplotlib.pyplot as plt
 
 from generation import two_stream
@@ -12,9 +12,12 @@ import utils
 class Sim():
     """class for simulation of pic
     """
-    def __init__(self,size, parts_num, dir, verbose = False):
+    def __init__(self, size: float, cells_num, time_step, parts_num, dir, verbose = False):
         self.size = size
-        self.parts_num = parts_num
+        self.cells_num = cells_num
+        self.parts_num = parts_num  # NPpc * cells_num
+        self.time_step = time_step
+        self.dx = size / cells_num
         self.dir = dir
         self.verbose = verbose
         
@@ -31,9 +34,11 @@ class Sim():
             print(f"\n directory:  {dir}  created for saving result\n")
     
 
-    def run(self, steps=STEPS, omega_p=Omega_p,
-            mode= MODE , ampl = AMPL, v0 = V0,
-            plot=True, plt_stp = PLT_STP):
+    def run(self, steps,
+            omega_p,
+            mode , ampl ,
+            v0 ,
+            plot, plt_stp ):
         
         # generating particle:
         self.particles = two_stream(omega_p=omega_p, parts_num = self.parts_num, size = self.size, # for Particle class
@@ -54,15 +59,31 @@ class Sim():
         for step in range(steps):
             if self.verbose:
                 print(f"\n we are in step {step} \n")
-            rho = density(self.particles)
-            PHI = sor_solver(rho)
-            EFIELDn = fieldOnNodes(PHI)
-            EFIELD = fieldOnParticles(EFIELDn, self.particles)
+            
+            rho = density(self.particles, self.cells_num, self.dx)
+            if self.verbose: 
+                print("\n wheiting dencity on grids from particle position (rho) by dencity funcion done! \n")
+    
+            PHI = sor_solver(rho, self.cells_num, self.dx)
+            if self.verbose:
+                print(f"Poisson solved by SOR method")
+
+                
+            EFIELDn = fieldOnNodes(PHI, self.cells_num, self.dx)
+            if self.verbose:
+                print("\n Calculating field from potential on grids (efild) done!\n")
+
+                
+            EFIELD = fieldOnParticles(EFIELDn, self.particles, self.cells_num, self.dx)
+            if self.verbose:       
+                print("\n calculating E field on particles done! \n")
 
             if step == 0:
-                self.particles = rewind(-1, EFIELD, self.particles)
+                self.particles = rewind(-1, EFIELD, self.particles, dt=self.time_step)
 
-            self.particles = moveParticles(EFIELD, self.particles)
+            self.particles = moveParticles(EFIELD, self.particles, self.size, dt= self.time_step)
+            if self.verbose:
+                print("\n moving of particles done! \n")
 
             # write to file
             #  ..... TODO ....
@@ -96,11 +117,35 @@ class Sim():
 
 # when this file run: 
 if __name__ == "__main__": 
+    # inpyt params:
+    CELLS_NUM = 100             # number of cells
+    #node_num = cells_num + 1       # number of node points
+    PARTS_NUM = CELLS_NUM * 10
+    SIZE = .4             # size of the system in meter
+
+    STEPS = 1000
+    PLT_STP = int(STEPS / 10) # plotting periode
+
+    dX = SIZE / CELLS_NUM       # distance between nodes (spatial step)
+    dT = 1e-5                # dt timestep (should be: omegaP * dt < 0.3)
+    
+    V0 = 0.4 * C
+    # verbose get more info of proccess
+    VERBOSE = False #True
+
+    # address of directory for saving plots
+    RESULT_DIR = "./results"
+    # Plasma and Beam parameter
+    Omega_p = 1e8             # non normalized plasma frequency ~ 9 sqrt(n0)
+    Omega_pp= Omega_p * ( (m_e/m_p)**(0.5) )               # plasma freq for ions
+
+    # PERTURBATION
+    MODE = 2
+    AMPL = SIZE/5
 
     # instantiate Sim() class for simulation env:
-    sim = Sim(size = SIZE, parts_num = NP ,
+    sim = Sim(size = SIZE, cells_num=CELLS_NUM,time_step=dT, parts_num = PARTS_NUM,
               dir = RESULT_DIR, verbose = VERBOSE)
-    
     # running PIC main loop:
     sim.run(steps=STEPS, omega_p=Omega_p,
             mode= MODE , ampl = AMPL, v0 = V0,

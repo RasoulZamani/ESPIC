@@ -1,4 +1,4 @@
-from parameters import *
+from constants import *
 import numpy as np
 
 class Particle:
@@ -10,17 +10,17 @@ class Particle:
                  QoverM ,    # q/m
                  move,      # moving(True) or not(False)
                  parts_num,       # number of particles
-                 size=SIZE):
+                 size):
         self.x = pos
         self.v = vel
         # from wp^2 = n*q^2 / m*eps  and n=N/L we drecive q:
-        self.q = omega_p**2 * (1 / QoverM) * eps0 * (size /parts_num)
+        self.q = omega_p**2 * (1 / QoverM) * EPS0 * (size /parts_num)
         self.qm = QoverM
         self.mv = move
 
 
 def two_stream (omega_p, parts_num, size, # for Particle class
-                  mode= MODE , ampl = AMPL, v0 = V0 ):
+                  mode, ampl, v0 ):
     
     particles = []
     sep = 1.0 * size / (parts_num / 2) #2dX
@@ -53,7 +53,7 @@ def two_stream (omega_p, parts_num, size, # for Particle class
     sep = size / parts_num
     for i in range (parts_num):
         x0 = (i + 0.5) * sep
-        particles.append(Particle (pos=x0,vel= 0.0,omega_p=Omega_pp,
-                                   QoverM=QM_p, move=False, parts_num=parts_num))
+        particles.append(Particle (pos=x0,vel= 0.0,omega_p=omega_p*(m_e/m_p)**(0.5),
+            QoverM=QM_p, move=False, parts_num=parts_num, size=size))
 
     return particles

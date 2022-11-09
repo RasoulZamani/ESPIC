@@ -1,8 +1,8 @@
 import numpy as np
-from parameters import *
+from constants import *
 
 
-def density (parts):
+def density (parts, cells_num, dx):
     """
     wheiting density on grids from particle position data
 
@@ -13,12 +13,12 @@ def density (parts):
         rho (np.array): dencity on grids
     """
     # initialize rho: filling by zero 
-    rho = [0.0 for i in range(NODES)]
+    rho = [0.0 for i in range(cells_num + 1)]
     n_parts = len(parts)
    
     # first-order CIC weighting: qj=qc*(1-(xi-Xj)/dx)
     for k in range(n_parts):
-        xi = (parts[k].x / dX)
+        xi = (parts[k].x / dx)
         Xj = np.floor(xi)
         d = xi - Xj
 
@@ -30,20 +30,18 @@ def density (parts):
         rho[nxt] += parts[k].q * d
 
 
-    rho[NODES - 1] += rho[0]
-    rho[0] = rho[NODES - 1]
+    rho[cells_num + 1 - 1] += rho[0]
+    rho[0] = rho[cells_num + 1 - 1]
 
     # convert list to array
     rho = np.array(rho)
 
     #normalization to dx
     # rho /= dX
-    if VERBOSE: 
-        print("\n wheiting dencity on grids from particle position (rho) by dencity funcion done! \n")
     return rho
 
 
-def sor_solver (rho):
+def sor_solver (rho, cells_num, dx):
     """
     Solving Poisson Eq by Successive Over-Relaxation (SOR) Method  
 
@@ -54,13 +52,13 @@ def sor_solver (rho):
         phi (np.array): potential on grids (answer of SOR solver)
     """
     #  relaxation factor
-    omega = 2.0 / (1 + 2 * np.pi / NODES)
+    omega = 2.0 / (1 + 2 * np.pi / (cells_num + 1))
 
     # initial phi values
-    phi = np.array([0.0 for i in range(NODES)])
+    phi = np.array([0.0 for i in range(cells_num + 1)])
 
     # right hand side
-    rhs = -np.copy(rho) * dX**2 / eps0
+    rhs = -np.copy(rho) * dx**2 / EPS0
 
     # solver
     for k in range(SOR_MAX_ITR):
@@ -69,9 +67,9 @@ def sor_solver (rho):
             print( "\n Ops! SOR (likely) diverges :( \n")
         
         phinew = np.copy(phi)
-        for i in range(NODES - 1):
-            nxt = (i + 1) if (i < NODES - 2) else 0
-            prv = (i - 1) if (i > 0) else (NODES - 2)
+        for i in range(cells_num ):
+            nxt = (i + 1) if (i < cells_num - 1 ) else 0
+            prv = (i - 1) if (i > 0) else (cells_num -1 )
 
             phinew[i] = (1 - omega) * phi[i] + (omega / -2.0) * (rhs[i] - phinew[prv] - phi[nxt])
 
@@ -80,16 +78,14 @@ def sor_solver (rho):
             err = np.max(np.abs(phinew - phi))
             if err < SOR_ERR:
                 phi = phinew
-                if VERBOSE:
-                    print(f"Poisson solved by SOR in {k} steps by {err} error ")
                 break
         phi = np.copy(phinew)
 
-    phi[NODES - 1] = phi[0]
+    phi[cells_num + 1 - 1] = phi[0]
     return phi
 
 
-def fieldOnNodes (phi):
+def fieldOnNodes (phi,cells_num, dx):
     """
     Calculating field from potential on grids
 
@@ -99,20 +95,18 @@ def fieldOnNodes (phi):
     Returns:
         field (np.array): E field on grids
     """
-    efield = np.array([0.0 for i in range(NODES)])
+    efield = np.array([0.0 for i in range(cells_num + 1)])
     
-    for i in range(NODES):
-        nxt = (i + 1) if (i < NODES - 1) else 0
-        prv = (i - 1) if (i > 0) else (NODES - 1)
+    for i in range(cells_num + 1):
+        nxt = (i + 1) if (i < cells_num + 1 - 1) else 0
+        prv = (i - 1) if (i > 0) else (cells_num + 1 - 1)
 
-        efield[i] = (phi[prv] - phi[nxt]) / (2 * dX)
+        efield[i] = (phi[prv] - phi[nxt]) / (2 * dx)
 
-    if VERBOSE:
-        print("\n Calculating field from potential on grids (efild) done!\n")
     return efield
 
 
-def fieldOnParticles (field, parts):
+def fieldOnParticles (field, parts, cells_num, dx):
     """
     Interpolating field from grids to particles
 
@@ -130,18 +124,16 @@ def fieldOnParticles (field, parts):
     # E(xi) = Ej * (Xj+1 - xi)/dx + Ej+1 * (xi-Xj)/dx  
     for k in range(n_parts):
         if parts[k].mv:
-            xi = (parts[k].x / dX)
+            xi = (parts[k].x / dx)
             j = int(np.floor(xi))
 
-            nxt = (j + 1) if (j + 1) < NODES else 0
+            nxt = (j + 1) if (j + 1) < (cells_num + 1) else 0
 
             efield[k] = (nxt - xi) * field[j] + (xi - j) * field[nxt]
-    if VERBOSE:
-        print("\n calculating E field on particles done! \n")
     return efield
 
 
-def rewind (direction, field, parts):
+def rewind (direction, field, parts, dt):
     """
     First time rewind velocity by dT/2 forward or backward
 
@@ -157,11 +149,11 @@ def rewind (direction, field, parts):
     for k in range(n_parts):
         # updating velocity
         if parts[k].mv:
-            parts[k].v += direction * field[k] * parts[k].qm * dT / 2.0
+            parts[k].v += direction * field[k] * parts[k].qm * dt / 2.0
     return parts
 
 
-def moveParticles (field, parts):
+def moveParticles (field, parts, size, dt):
     """
     motion eq. integration for particles
 
@@ -176,16 +168,14 @@ def moveParticles (field, parts):
     for k in range(n_parts):
         if parts[k].mv:
             # updating velocity
-            parts[k].v += field[k] * parts[k].qm * dT
+            parts[k].v += field[k] * parts[k].qm * dt
 
             # updating position
-            parts[k].x += parts[k].v * dT
+            parts[k].x += parts[k].v * dt
 
             while parts[k].x < 0:
-                parts[k].x += SIZE
-            while parts[k].x >= SIZE:
-                parts[k].x -= SIZE
+                parts[k].x += size
+            while parts[k].x >= size:
+                parts[k].x -= size
     
-    if VERBOSE:
-        print("\n moving of particles done! \n")
     return parts

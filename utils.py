@@ -7,7 +7,6 @@ pice of code(e.g for plotting and assistance functions)
 import time
 import sys
 import numpy as np
-from parameters import *
 from matplotlib import pyplot as plt
 
 # plotter _____________________________________________________
