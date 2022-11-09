@@ -31,11 +31,13 @@ class Sim():
             print(f"\n directory:  {dir}  created for saving result\n")
     
 
-    def run(self, steps=STEPS, omega_p=Omega_p, plot=True, plt_stp = PLT_STP):
+    def run(self, steps=STEPS, omega_p=Omega_p,
+            mode= MODE , ampl = AMPL, v0 = V0,
+            plot=True, plt_stp = PLT_STP):
         
         # generating particle:
         self.particles = two_stream(omega_p=omega_p, parts_num = self.parts_num, size = self.size, # for Particle class
-                  mode= MODE , ampl = AMPL, v0 = V0 )
+                  mode= mode , ampl = ampl, v0 = v0 )
         if self.verbose:
             # ..... TODO ... : print other parameters too
             print( " particles in t=0 generated with ...")
@@ -100,5 +102,7 @@ if __name__ == "__main__":
               dir = RESULT_DIR, verbose = VERBOSE)
     
     # running PIC main loop:
-    sim.run(steps=STEPS, omega_p=Omega_p, plot=True, plt_stp = PLT_STP)
+    sim.run(steps=STEPS, omega_p=Omega_p,
+            mode= MODE , ampl = AMPL, v0 = V0,
+            plot=True, plt_stp = PLT_STP)
      
