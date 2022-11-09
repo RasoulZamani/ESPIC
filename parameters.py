@@ -2,7 +2,9 @@
 This file contains constanses and parameters needed for code
 also name of used model shoud be choice here
 """
+
 # Constansts__________________________________________________
+
 EPS0 = 8.85e-12
 m_e = 9.1091 * 1e-31 # Mass of an electron Kg
 m_p = 1.6726 * 1e-27
@@ -24,7 +26,8 @@ dX = SIZE / CELLS       # distance between nodes (spatial step)
 dT = 1e-5                # timestep (should be: omegaP * dt < 0.3)
 
 # Plasma and Beam parameter
-omega_p = 1e8             # non normalized plasma frequency ~ 9 sqrt(n0)
+Omega_p = 1e8             # non normalized plasma frequency ~ 9 sqrt(n0)
+Omega_pp= Omega_p * ( (m_e/m_p)**(0.5) )               # plasma freq for ions
 n0      = 1e12
 eps0 = EPS0              # non normalized vacuum permittivity
 keV  = 2                 # beam energy in keV

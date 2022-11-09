@@ -36,7 +36,7 @@ def plt_xv(n):
 
     #fig.show()
     fig.savefig(r"results/fig"+f"_{n}")
-"""
+
     
 dir="./results"
 os.makedirs(dir, exist_ok=True)  
@@ -48,3 +48,28 @@ if len(files)>0:
 
 a= os.path.join(RESULT_DIR)
 print(a)
+
+""" 
+"""
+class Person():
+    def __init__(self,name,age):
+        self.name = name
+        self.age= age
+    def display(self):
+        print(self.name, self.age)
+
+person = Person(name="rasoul", age=30)
+person.display()
+
+class Student(Person):
+    def __init__(self,name,age,score):
+        super().__init__(name, age)
+        self.score=score
+    def display(self):
+        print(self.score)
+
+stud = Student(name="ali", age= 29, score=20)
+stud.display()
+"""  
+
+print(2.1 ** (0.5))
