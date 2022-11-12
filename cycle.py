@@ -38,6 +38,9 @@ def density (parts, cells_num, dx):
     # convert list to array
     rho = np.array(rho)
 
+    # for chek stuf:
+    #print("rho is:\n", rho)
+    
     #normalization to dx
     # rho /= dX
     return rho
@@ -55,7 +58,7 @@ def sor_solver (rho, cells_num, dx):
     Returns:
         phi (np.array): potential on grids (answer of SOR solver)
     """
-    #  relaxation factor
+    #  relaxation factor must be between 0,2
     omega = 2.0 / (1 + 2 * np.pi / (cells_num + 1))
 
     # initial phi values
