@@ -46,9 +46,9 @@ class Sim():
         if self.verbose:
             # ..... TODO ... : print other parameters too
             print( " particles in t=0 generated with ...")
-            print(f"\nnumber of cells is: {CELLS}, length of env: {self.sizesize}m",
-                f"\nlength of each grid(dX): {dX}, time step: {dT}, number of steps:{STEPS}",
-                f"\nplasma freq for e:{omega_p}, beam energy: {keV} keV equal to {V0} m/s")
+            print(f"\nnumber of cells is: {self.cells_num}, length of env: {self.sizesize}m",
+                f"\nlength of each grid(dX): {self.dx}, time step: {self.dt}, number of steps:{STEPS}",
+                f"\nplasma freq for e:{omega_p}, beam velocity: {v0} m/s")
   
         # PROGRESS BAR _______________________________________________
         stp = 0
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     PARTS_NUM = CELLS_NUM * 10
     SIZE = .4             # size of the system in meter
 
-    STEPS = 1000
+    STEPS = 100
     PLT_STP = int(STEPS / 10) # plotting periode
 
     dX = SIZE / CELLS_NUM       # distance between nodes (spatial step)

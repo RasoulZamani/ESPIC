@@ -12,7 +12,7 @@ C = 299790000 # Speed of light meters/second
 q = 1.602 * 1e-19  # absulote Charge of an electron coulombs
 QM_e = -1 * q/m_e
 QM_p = q/ m_p 
-# SOR (pisson solver) parameters
+# SOR (Poisson solver) parameters
 SOR_ERR = 1e-5
 SOR_MAX_ITR = int(1e4)
 

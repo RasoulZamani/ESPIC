@@ -7,7 +7,9 @@ def density (parts, cells_num, dx):
     wheiting density on grids from particle position data
 
     Args:
-        parts (np.array): particle position array
+        parts (np.array): particle info array
+        cells_num (int) : number of cells
+        dx      (float) : cell length
 
     Returns:
         rho (np.array): dencity on grids
@@ -47,6 +49,8 @@ def sor_solver (rho, cells_num, dx):
 
     Args:
         rho (np.array): density of particles on grids
+        cells_num(int): number of cells
+        dx     (float): cell length
 
     Returns:
         phi (np.array): potential on grids (answer of SOR solver)
@@ -90,7 +94,9 @@ def fieldOnNodes (phi,cells_num, dx):
     Calculating field from potential on grids
 
     Args:
-        phi (np.array): potential on grids
+        phi (np.array)  : potential on grids
+        cells_num (int) : number of cells
+        dx      (float) : cell length
 
     Returns:
         field (np.array): E field on grids
@@ -113,6 +119,8 @@ def fieldOnParticles (field, parts, cells_num, dx):
     Args:
         field (np.array): E field on grids
         parts (np.array): particles on grids
+        cells_num (int) : number of cells
+        dx      (float) : cell length
 
     Returns:
         efield (np.array): E field on partilce
@@ -140,10 +148,11 @@ def rewind (direction, field, parts, dt):
     Args:
         direction (np.array): rewind direction. +1: forward, -1: backward
         field (np.array): E field on particles E(xi)
-        parts (np.array): particles
+        parts (np.array): particles info array
+        dt     (float)  : time step 
 
     Returns:
-        parts (np.array): update velocity
+        parts (np.array): particles info array with updated velocity
     """
     n_parts = len(parts)
     for k in range(n_parts):
@@ -160,9 +169,11 @@ def moveParticles (field, parts, size, dt):
     Args:
         field (np.array): E field on particles E(xi)
         parts (np.array): particles
+        size  (float)   : size of environment 
+        dt    (float)   : time step
 
     Returns:
-        psrts (np.array): particles with new position and velocity
+        psrts (np.array): particles with updated position and velocity
     """
     n_parts = len(parts)
     for k in range(n_parts):
