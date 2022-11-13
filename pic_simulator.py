@@ -1,11 +1,10 @@
 import os
 from constants import *
 import matplotlib.pyplot as plt
-
+from tqdm import tqdm 
 from generation import two_stream as parts_gen
 from cycle import density, sor_solver, fieldOnNodes, \
 fieldOnParticles, rewind, moveParticles
-import utils
 
 
 class Sim():
@@ -50,14 +49,10 @@ class Sim():
             print(f"\nnumber of cells is: {self.cells_num}, length of env: {self.sizesize}m",
                 f"\nlength of each grid(dX): {self.dx}, time step: {self.dt}, number of steps:{STEPS}",
                 f"\nplasma freq for e:{omega_p}, beam velocity: {v0} m/s")
-  
-        # PROGRESS BAR _______________________________________________
-        stp = 0
-        utils.printProgress(stp, steps, prefix = 'Progress:',
-                  suffix = 'Complete', barLength = 50)
+
 
         # main loop of PIC ___________________________________________
-        for step in range(steps):
+        for step in tqdm(range(steps), desc="pic steps"):
             if self.verbose:
                 print(f"\n we are in step {step} \n")
             
@@ -90,11 +85,6 @@ class Sim():
             #  ..... TODO ....
     
 
-            # PROGRESS BAR
-            stp += 1
-            utils.printProgress(stp, steps, prefix = 'Progress:',
-                      suffix = 'Complete', barLength = 50)
-    
             # plotting _______________________________________________
 
             if (plot) & (step % plt_stp == 0):
@@ -116,5 +106,3 @@ class Sim():
                 # ...... TODO ....... 
                 # make t more pretty later!
 
-
-     
