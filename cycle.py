@@ -1,6 +1,13 @@
+"""
+this file (cycle.py) contains necessary function for pic cycles.
+"""
+# import libs: _______________________________________________
+
 import numpy as np
+
 from constants import *
 
+# functions: _________________________________________________
 
 def density (parts, cells_num, dx):
     """
@@ -59,7 +66,7 @@ def sor_solver (rho, cells_num, dx):
         phi (np.array): potential on grids (answer of SOR solver)
     """
     #  relaxation factor must be between 0,2
-    omega = 2.0 / (1 + 2 * np.pi / (cells_num + 1))
+    omega =2.0 / (1 + 2 * np.pi / (cells_num + 1))
 
     # initial phi values
     phi = np.array([0.0 for i in range(cells_num + 1)])
@@ -71,8 +78,8 @@ def sor_solver (rho, cells_num, dx):
     for k in range(SOR_MAX_ITR):
         
         if k == SOR_MAX_ITR - 1:
-            print( "\n Ops! SOR (likely) diverges :( \n")
-        
+            print( f"\n Ops! SOR (likely) diverges by meam abs error {err} :( \n")
+            #print("last phi is:", phi)
         phinew = np.copy(phi)
         for i in range(cells_num ):
             nxt = (i + 1) if (i < cells_num - 1 ) else 0
@@ -82,13 +89,14 @@ def sor_solver (rho, cells_num, dx):
 
         # checking convergence
         if k % 32 == 0:
-            err = np.max(np.abs(phinew - phi))
+            err = np.mean(np.abs(phinew - phi))
             if err < SOR_ERR:
                 phi = phinew
+                #print(f"DOR converge by {err} error")
                 break
         phi = np.copy(phinew)
 
-    phi[cells_num + 1 - 1] = phi[0]
+    phi[cells_num ] = phi[0]  
     return phi
 
 

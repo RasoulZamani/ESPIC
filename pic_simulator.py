@@ -103,6 +103,7 @@ class Sim():
                 plt.title(f" phase space (x-v) of particles in step {step} ")
                 fig.savefig(r"results/fig_"+f"step_{step}")
         
+        
+        
                 # ...... TODO ....... 
                 # make t more pretty later!
-

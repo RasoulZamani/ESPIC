@@ -29,7 +29,7 @@ def two_stream (omega_p, parts_num, size, # for Particle class
                   v0 # velocity of streams 
                   ):
     """ generating parts_num number of particle object informing two streams
-        with omega_p in lenthg of size and perturbate it.
+        in periodic B.C. with omega_p in lenthg of size and perturbate it.
     
     Args:
         omega_p   (int)      : plasma freq: ~ 9 sqrt(n)
@@ -74,7 +74,7 @@ def two_stream (omega_p, parts_num, size, # for Particle class
     for i in range (parts_num):
         x0 = (i + 0.5) * sep
         particles.append(Particle (pos=x0,vel= 0.0,omega_p=omega_p*(m_e/m_p)**(0.5),
-            QoverM=QM_p, move=False, parts_num=parts_num, size=size))
+           QoverM=QM_p, move=False, parts_num=parts_num, size=size))
 
     return particles
 # ____________________________________________________________
@@ -83,7 +83,7 @@ def e_beam (omega_p, parts_num, size, # for Particle class
                   v0 # velocity of beam
                   ):
     """ generating parts_num number of particle object and form an
-    electron beam with omega_p, with velocity v0, in lenthg of size. 
+    periodic electron beam  with omega_p, with velocity v0, in lenthg of size. 
     
     Args:
         omega_p   (int)      : plasma freq: ~ 9 sqrt(n)
@@ -122,6 +122,8 @@ def e_beam (omega_p, parts_num, size, # for Particle class
     for i in range (parts_num):
         x0 = (i + 0.5) * sep
         particles.append(Particle (pos=x0, vel=0.0, omega_p = omega_p*(m_e/m_p)**(0.5),
-            QoverM = QM_p, move = False, parts_num = parts_num, size = size))
+           QoverM = QM_p, move = False, parts_num = parts_num, size = size))
 
     return particles
+
+
